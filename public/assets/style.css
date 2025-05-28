@@ -83,3 +83,78 @@ footer {
     .features { flex-direction: column; align-items: center; }
     .feature { width: 90%; margin-bottom: 1.5rem; }
 }
+body { animation: fadeIn 1s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.hero h1 { animation: slideDown 1s; }
+@keyframes slideDown { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.feature { transition: transform 0.3s; }
+.feature:hover { transform: scale(1.05); box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.cta { animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 #4e8cff44; } 50% { box-shadow: 0 0 0 10px #4e8cff22; } }
+.form-container {
+    max-width: 400px;
+    margin: 4rem auto 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,91,150,0.08);
+    padding: 2.5rem 2rem 2rem 2rem;
+    text-align: center;
+}
+.form-container h2 {
+    color: #005b96;
+    margin-bottom: 1.5rem;
+}
+.form-container label {
+    display: block;
+    text-align: left;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+.form-container input[type="email"],
+.form-container input[type="password"] {
+    width: 100%;
+    padding: 0.7rem;
+    margin-bottom: 1.2rem;
+    border: 1px solid #b3c6d9;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #f7f9fb;
+    transition: border 0.2s;
+}
+.form-container input:focus {
+    border: 1.5px solid #005b96;
+    outline: none;
+}
+.form-container button {
+    width: 100%;
+    padding: 0.9rem;
+    background: #005b96;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 0.5rem;
+}
+.form-container button:hover {
+    background: #ffb347;
+    color: #222;
+}
+.form-container p[style*="color: red"] {
+    margin-bottom: 1rem;
+    color: #d90429 !important;
+    font-weight: 500;
+}
+@media (max-width: 600px) {
+    .form-container { padding: 1.2rem 0.5rem; }
+}
+body { animation: fadeIn 1s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.hero h1 { animation: slideDown 1s; }
+@keyframes slideDown { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.feature { transition: transform 0.3s; }
+.feature:hover { transform: scale(1.05); box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.cta { animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 #4e8cff44; } 50% { box-shadow: 0 0 0 10px #4e8cff22; } }

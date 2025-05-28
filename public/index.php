@@ -43,7 +43,7 @@
         </section>
     </main>
     <footer>
-        &copy; 2024 Imagerie Médicale. Tous droits réservés.
+        &copy; 2024 Imagerie Médicale. Tous droits réservés a @william.
     </footer>
     <script src="assets/script.js"></script>
 </body>
