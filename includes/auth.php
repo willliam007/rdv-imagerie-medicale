@@ -31,21 +31,38 @@ function register_user($email, $password, $confirm_password) {
         if ($stmt->fetch()) {
             $errors[] = "Un utilisateur avec cet email existe déjà.";
         } else {
-            // Hachage du mot de passe
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $pdo->beginTransaction();
 
-            // Insertion
-            $stmt = $pdo->prepare("INSERT INTO users (email, password, role) VALUES (?, ?, 'patient')");
-            if ($stmt->execute([$email, $hashed_password])) {
+            try {
+                // Créer l'utilisateur
+                $stmt = $pdo->prepare("INSERT INTO users (email, password, role) VALUES (?, ?, 'patient')");
+                $stmt->execute([$email, $hashed_password]);
+                $user_id = $pdo->lastInsertId();
+
+                // Créer le profil patient lié
+                $stmt = $pdo->prepare("INSERT INTO patients (user_id) VALUES (?)");
+                $stmt->execute([$user_id]);
+
+                $pdo->commit();
+
+                // Démarre la session automatiquement
+                session_start();
+                $_SESSION['user_id'] = $user_id;
+                $_SESSION['user_role'] = 'patient';
+
                 return ['success' => true];
-            } else {
-                $errors[] = "Erreur lors de l'enregistrement.";
+
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                $errors[] = "Erreur lors de l'inscription : " . $e->getMessage();
             }
         }
     }
 
     return ['success' => false, 'errors' => $errors];
 }
+
 
 // Fonction de connexion
 function login_user($email, $password) {

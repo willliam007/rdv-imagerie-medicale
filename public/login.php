@@ -18,6 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="assets/css/style.css">
+<script src="assets/js/script.js" defer></script>
+
     <title>Connexion</title>
 </head>
 <body>

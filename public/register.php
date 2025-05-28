@@ -6,7 +6,11 @@ $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = register_user($_POST['email'], $_POST['password'], $_POST['confirm_password']);
-    $success = $result['success'];
+    if ($result['success']) {
+        header("Location: profil.php");
+        exit;
+    }
+    
     $errors = $result['errors'];
 }
 ?>
@@ -15,14 +19,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="assets/css/style.css">
+<script src="assets/js/script.js" defer></script>
+
     <title>Inscription</title>
 </head>
 <body>
     <h2>Inscription</h2>
 
-    <?php if ($success): ?>
+    <!-- <?php if ($success): ?>
         <p style="color: green;">Inscription réussie ! <a href="login.php">Connectez-vous ici</a></p>
-    <?php endif; ?>
+    <?php endif; ?> -->
 
     <?php foreach ($errors as $error): ?>
         <p style="color: red;"><?= htmlspecialchars($error) ?></p>
