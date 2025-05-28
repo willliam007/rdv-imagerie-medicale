@@ -91,4 +91,34 @@ function login_user($email, $password) {
 
     return ['success' => false, 'errors' => $errors];
 }
+
+// function require_role($role = null) {
+//     session_start();
+//     if (!isset($_SESSION['user_id'])) {
+//         header("Location: ../public/login.php");
+//         exit;
+//     }
+//     if ($role && (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== $role)) {
+//         die("Accès non autorisé.");
+//     }
+// }
+
+function require_role($role = null) {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    // Si pas connecté du tout
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: ../public/login.php");
+        exit;
+    }
+
+    // Si un rôle est exigé
+    if ($role !== null && $_SESSION['user_role'] !== $role) {
+        die("Accès interdit : cette page est réservée au rôle '$role'.");
+    }
+}
+
+
 ?>

@@ -1,6 +1,11 @@
 <?php
 require_once '../includes/db.php';
+require_once '../includes/auth.php';
+// require_once '../includes/guard.php';
+
 session_start();
+require_role('patient');
+
 
 // Vérifie que l'utilisateur est connecté
 if (!isset($_SESSION['user_id'])) {
