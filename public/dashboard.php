@@ -51,27 +51,38 @@ $rendezvous = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <p>Vous n'avez pas encore pris de rendez-vous.</p>
     <?php else: ?>
         <table border="1" cellpadding="8" cellspacing="0">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Heure</th>
-                    <th>Examen</th>
-                    <th>Sous-type</th>
-                    <th>Statut</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($rendezvous as $rdv): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($rdv['date']) ?></td>
-                        <td><?= htmlspecialchars($rdv['heure_debut']) ?> - <?= htmlspecialchars($rdv['heure_fin']) ?></td>
-                        <td><?= htmlspecialchars($rdv['examen_nom']) ?></td>
-                        <td><?= htmlspecialchars($rdv['sous_type_nom']) ?></td>
-                        <td><?= htmlspecialchars($rdv['statut']) ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Heure</th>
+            <th>Examen</th>
+            <th>Sous-type</th>
+            <th>Statut</th>
+            <th>Action</th> <!-- Nouvelle colonne -->
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($rendezvous as $rdv): ?>
+            <tr>
+                <td><?= htmlspecialchars($rdv['date']) ?></td>
+                <td><?= htmlspecialchars($rdv['heure_debut']) ?> - <?= htmlspecialchars($rdv['heure_fin']) ?></td>
+                <td><?= htmlspecialchars($rdv['examen_nom']) ?></td>
+                <td><?= htmlspecialchars($rdv['sous_type_nom']) ?></td>
+                <td><?= htmlspecialchars($rdv['statut']) ?></td>
+                <td>
+                    <?php if ($rdv['statut'] === 'en_attente'): ?>
+                        <form method="POST" action="annuler-rdv.php" onsubmit="return confirm('Confirmer l\'annulation du rendez-vous ?');">
+                            <input type="hidden" name="rdv_id" value="<?= $rdv['id'] ?>">
+                            <button type="submit">Annuler</button>
+                        </form>
+                    <?php else: ?>
+                        -
+                    <?php endif; ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
     <?php endif; ?>
 </body>
 </html>
