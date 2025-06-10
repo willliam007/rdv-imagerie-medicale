@@ -1,7 +1,9 @@
 <?php
 require_once 'db.php';
 
-// Fonction d'inscription
+/**
+ * Fonction d'inscription (patient uniquement).
+ */
 function register_user($email, $password, $confirm_password) {
     $errors = [];
 
@@ -35,7 +37,7 @@ function register_user($email, $password, $confirm_password) {
             $pdo->beginTransaction();
 
             try {
-                // Créer l'utilisateur
+                // Créer l'utilisateur avec rôle par défaut 'patient'
                 $stmt = $pdo->prepare("INSERT INTO users (email, password, role) VALUES (?, ?, 'patient')");
                 $stmt->execute([$email, $hashed_password]);
                 $user_id = $pdo->lastInsertId();
@@ -63,61 +65,95 @@ function register_user($email, $password, $confirm_password) {
     return ['success' => false, 'errors' => $errors];
 }
 
-
-// Fonction de connexion
+/**
+ * Fonction de connexion.
+ */
 function login_user($email, $password) {
-    $errors = [];
+    global $pdo;
 
-    if (empty($email) || empty($password)) {
-        $errors[] = "Tous les champs sont obligatoires.";
-    }
+    $stmt = $pdo->prepare("SELECT id, password, role FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (empty($errors)) {
-        global $pdo;
+    if ($user && password_verify($password, $user['password'])) {
+        // Authentification réussie
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_role'] = $user['role'];
 
-        $stmt = $pdo->prepare("SELECT id, password, role FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
-
-        if ($user && password_verify($password, $user['password'])) {
-            session_start();
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_role'] = $user['role'];
-            return ['success' => true];
+        // Redirection selon le rôle
+        if ($user['role'] === 'patient') {
+            header("Location: dashboard.php");
+        } elseif ($user['role'] === 'secretaire') {
+            header("Location: gestion-rdv.php");
+            exit;
+        } elseif ($user['role'] === 'medecin') {
+            header("Location: gestion-medecin.php");
+        } elseif ($user['role'] === 'admin') {
+            header("Location: admin-dashboard.php");
         } else {
-            $errors[] = "Email ou mot de passe incorrect.";
+            return ['success' => false, 'errors' => ['Accès interdit pour ce rôle.']];
         }
-    }
 
-    return ['success' => false, 'errors' => $errors];
+        exit;
+    } else {
+        return ['success' => false, 'errors' => ['Email ou mot de passe incorrect.']];
+    }
 }
 
-// function require_role($role = null) {
-//     session_start();
-//     if (!isset($_SESSION['user_id'])) {
-//         header("Location: ../public/login.php");
-//         exit;
-//     }
-//     if ($role && (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== $role)) {
-//         die("Accès non autorisé.");
-//     }
-// }
-
+/**
+ * Vérifie la session et le rôle (protection des pages).
+ */
 function require_role($role = null) {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
 
-    // Si pas connecté du tout
+    // Vérifie la connexion
     if (!isset($_SESSION['user_id'])) {
         header("Location: ../public/login.php");
         exit;
     }
 
-    // Si un rôle est exigé
-    if ($role !== null && $_SESSION['user_role'] !== $role) {
+    // Vérifie le rôle si précisé
+    if ($role !== null && (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== $role)) {
         die("Accès interdit : cette page est réservée au rôle '$role'.");
     }
+}
+
+
+/**
+ * Ajoute une notification pour un utilisateur
+ */
+function ajouter_notification($user_id, $message) {
+    global $pdo;
+    $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)");
+    $stmt->execute([$user_id, $message]);
+}
+
+
+
+/**
+ * Récupère les notifications d'un utilisateur
+ */
+function get_notifications($user_id, $only_unread = false) {
+    global $pdo;
+    $sql = "SELECT * FROM notifications WHERE user_id = ?";
+    if ($only_unread) {
+        $sql .= " AND lu = 0";
+    }
+    $sql .= " ORDER BY date_creation DESC";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$user_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Marque les notifications comme lues
+ */
+function marquer_notifications_lues($user_id) {
+    global $pdo;
+    $stmt = $pdo->prepare("UPDATE notifications SET lu = 1 WHERE user_id = ?");
+    $stmt->execute([$user_id]);
 }
 
 

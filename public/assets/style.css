@@ -1,26 +1,31 @@
 body {
-    background-color: #f9f9f9;
     font-family: 'Open Sans', sans-serif;
 }
 
-h2 {
+h1, h3 {
     color: #4A90E2;
 }
 
-table th {
-    text-align: center;
+.card {
+    border-radius: 10px;
 }
 
-.table thead th {
+.btn-primary {
     background-color: #4A90E2;
-    color: white;
+    border: none;
+}
+
+.btn-outline-primary {
+    border-color: #4A90E2;
+    color: #4A90E2;
+}
+
+.btn-outline-primary:hover {
+    background-color: #4A90E2;
+    color: #fff;
 }
 
 .navbar-brand {
     font-weight: bold;
     color: #4A90E2;
-}
-
-.navbar-brand img {
-    vertical-align: middle;
 }

@@ -1,0 +1,273 @@
+<?php
+require_once '../includes/db.php';
+require_once '../includes/auth.php';
+
+session_start();
+
+$errors = [];
+$success = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
+
+    if ($password !== $confirm_password) {
+        $errors[] = "Les mots de passe ne correspondent pas.";
+    } else {
+        if (register_user($email, $password, $confirm_password)) {
+            $success = true;
+        } else {
+            $errors[] = "Erreur lors de l'inscription. Email peut-être déjà utilisé.";
+        }
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Inscription</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="assets/styles.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container d-flex flex-column align-items-center justify-content-center vh-100">
+    <div class="card shadow-sm" style="width: 350px;">
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <img src="assets/logo.svg" alt="Logo" height="50">
+                <h3 class="text-primary mt-2">Inscription</h3>
+            </div>
+
+            <?php if ($success): ?>
+                <div class="alert alert-success">Inscription réussie ! Vous pouvez maintenant vous connecter.</div>
+            <?php endif; ?>
+
+            <?php foreach ($errors as $error): ?>
+                <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+            <?php endforeach; ?>
+
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" required placeholder="email@exemple.com">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mot de passe</label>
+                    <input type="password" name="password" class="form-control" required placeholder="******">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Confirmer le mot de passe</label>
+                    <input type="password" name="confirm_password" class="form-control" required placeholder="******">
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Créer un compte</button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="index.php" class="small text-muted">Retour à l'accueil</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+<?php
+session_start();
+$success = $_SESSION['register_success'] ?? '';
+$error = $_SESSION['register_error'] ?? '';
+unset($_SESSION['register_success'], $_SESSION['register_error']);
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inscription - Imagerie Médicale</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+<header class="bg-white shadow-sm mb-4">
+    <div class="container d-flex justify-content-between align-items-center py-3">
+        <div class="d-flex align-items-center">
+            <img src="assets/logo.svg" alt="Logo" height="50" class="me-2">
+            <span class="fs-4 fw-bold text-primary">Imagerie Médicale</span>
+        </div>
+        <nav>
+            <a href="index.php" class="btn btn-outline-primary me-2"><i class="fas fa-home"></i> Accueil</a>
+            <a href="login.php" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Connexion</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 70vh;">
+        <div class="card shadow p-4" style="max-width: 500px; width: 100%;">
+            <h2 class="mb-4 text-center text-primary">Créer un compte</h2>
+
+            <?php if ($success): ?>
+                <div class="alert alert-success text-center"><?= htmlspecialchars($success) ?></div>
+            <?php endif; ?>
+            <?php if ($error): ?>
+                <div class="alert alert-danger text-center"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
+
+            <form action="includes/auth.php" method="post">
+                <div class="mb-3">
+                    <label for="nom" class="form-label">Nom</label>
+                    <input type="text" class="form-control" id="nom" name="nom" required>
+                </div>
+                <div class="mb-3">
+                    <label for="prenom" class="form-label">Prénom</label>
+                    <input type="text" class="form-control" id="prenom" name="prenom" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Adresse e-mail</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Mot de passe</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="confirm_password" class="form-label">Confirmer le mot de passe</label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100"><i class="fas fa-user-plus"></i> S'inscrire</button>
+            </form>
+
+            <div class="mt-3 text-center">
+                <a href="login.php">Déjà inscrit ? Se connecter</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-primary text-white text-center py-3 mt-5">
+    &copy; 2025 Imagerie Médicale. Tous droits réservés.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+
+
+<?php
+session_start();
+require_once '../includes/db.php';
+
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+
+// Récupérer l’ID du patient lié à l’utilisateur
+$stmt = $pdo->prepare('SELECT id FROM patients WHERE user_id = ?');
+$stmt->execute([$user_id]);
+$patient_id = $stmt->fetchColumn();
+
+if (!$patient_id) {
+    echo "Erreur : patient non trouvé.";
+    exit;
+}
+
+// Récupérer les données du patient
+$stmt = $pdo->prepare('SELECT nom, prenom, sexe, telephone, age FROM patients WHERE id = ?');
+$stmt->execute([$patient_id]);
+$user = $stmt->fetch();
+
+$success = $_SESSION['profil_success'] ?? '';
+$error = $_SESSION['profil_error'] ?? '';
+unset($_SESSION['profil_success'], $_SESSION['profil_error']);
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon Profil - Imagerie Médicale</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+<header class="bg-white shadow-sm mb-4">
+    <div class="container d-flex justify-content-between align-items-center py-3">
+        <div class="d-flex align-items-center">
+            <img src="assets/logo.svg" alt="Logo" height="50" class="me-2">
+            <span class="fs-4 fw-bold text-primary">Imagerie Médicale</span>
+        </div>
+        <nav>
+            <a href="index.php" class="btn btn-outline-primary me-2"><i class="fas fa-home"></i> Accueil</a>
+            <a href="dashboard.php" class="btn btn-primary"><i class="fas fa-user"></i> Tableau de bord</a>
+            <a href="logout.php" class="btn btn-danger ms-2"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 70vh;">
+        <div class="card shadow p-4" style="max-width: 500px; width: 100%;">
+            <h2 class="mb-4 text-center text-primary">Mon Profil</h2>
+
+            <?php if ($success): ?>
+                <div class="alert alert-success text-center"><?= htmlspecialchars($success) ?></div>
+            <?php endif; ?>
+            <?php if ($error): ?>
+                <div class="alert alert-danger text-center"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
+
+            <form action="includes/auth.php" method="post">
+                <input type="hidden" name="action" value="update_profile">
+                <div class="mb-3">
+                    <label for="nom" class="form-label">Nom</label>
+                    <input type="text" class="form-control" id="nom" name="nom" value="<?= htmlspecialchars($user['nom']) ?>" required>
+                </div>
+                <div class="mb-3">
+                    <label for="prenom" class="form-label">Prénom</label>
+                    <input type="text" class="form-control" id="prenom" name="prenom" value="<?= htmlspecialchars($user['prenom']) ?>" required>
+                </div>
+                <div class="mb-3">
+                    <label for="sexe" class="form-label">Sexe</label>
+                    <input type="text" class="form-control" id="sexe" name="sexe" value="<?= htmlspecialchars($user['sexe']) ?>">
+                </div>
+                <div class="mb-3">
+                    <label for="telephone" class="form-label">Téléphone</label>
+                    <input type="tel" class="form-control" id="telephone" name="telephone" value="<?= htmlspecialchars($user['telephone']) ?>">
+                </div>
+                <div class="mb-3">
+                    <label for="age" class="form-label">Âge</label>
+                    <input type="number" class="form-control" id="age" name="age" value="<?= htmlspecialchars($user['age']) ?>">
+                </div>
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-save"></i> Mettre à jour</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-primary text-white text-center py-3 mt-5">
+    &copy; 2025 Imagerie Médicale. Tous droits réservés. Réalisé par @william.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
